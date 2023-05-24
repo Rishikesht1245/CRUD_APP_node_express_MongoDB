@@ -1,0 +1,18 @@
+
+<% data.forEach(function(item,i) { %>
+      <tr>
+        <td><%= i+1 %></td>
+        <td><%=item.title%></td>
+        <td><%=item.description%></td>
+        <td><%=item.completed%></td>
+        <td>
+            <a href="/update-user/<%=item._id%>" class="btn border-shadow update">
+              <span class=""><i class="fas fa-pencil text-gradient"></i></span>
+            </a>  
+            <a class="btn border-shadow delete-btn" data-id="<%=item._id%>">
+              <span class=""><i class="fa-solid fa-times text-gradient"></i></span>
+            </a>  
+        </td>
+    </tr>
+    <% }); %>
+    
