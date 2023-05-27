@@ -1,6 +1,7 @@
 const session = require('express-session');
-const {collection1,collection2} = require('../model/mongodb');
+const {users,todos} = require('../model/mongodb');
 const { ObjectId } = require('mongodb');
+const bcrypt = require('bcrypt');
 
 //============================= middleware to check the if session is existing or not ================//
 exports.sessionChecker = (req, res, next)=> {
@@ -15,14 +16,14 @@ exports.sessionChecker = (req, res, next)=> {
 //========================== inserting data to database===================================//
 exports.registerUser = async (req, res) => {
       try{
-            // // hashing the passowrd using bcrypt
-            // const hashedPassword = await bcrypt.hash(req.body.password,10)
+            // hashing the passowrd using bcrypt
+            const hashedPassword = await bcrypt.hash(req.body.password,10)
             const data = {
                 name:  req.body.name,
                 email : req.body.email,
-                password : req.body.password
+                password : hashedPassword
             }
-            const existingUser = await collection1.findOne({ email: req.body.email });
+            const existingUser = await users.findOne({ email: req.body.email });
 
             if (existingUser) {
                   const messages = {
@@ -32,7 +33,7 @@ exports.registerUser = async (req, res) => {
           }
             else{
                    //giving data to mongoDB
-                await collection1.insertMany([data])
+                await users.insertMany([data])
                 console.log(data)
                 res.redirect('/')
             
@@ -49,10 +50,12 @@ exports.registerUser = async (req, res) => {
 //=========================== validating login credentials before login ==========================//
 exports.loginUser = async (req, res)=> {
     try{
-            const check = await collection1.findOne({email:req.body.email})
+            const check = await users.findOne({email:req.body.email})
             req.session.userId = check._id;
             const userId = req.session.userId
-            if(check.password === req.body.password){
+            // comparing passwords using bcrypt.compare method
+            const isValid = await bcrypt.compare(req.body.password, check.password)
+            if(isValid){
                  res.redirect('/todoPage')
 
             } else{
@@ -75,7 +78,7 @@ exports.loginUser = async (req, res)=> {
 exports.addNewTodo = async(req, res)=> {
       try{
             userId=req.session.userId
-            const data = await collection2.find({userId : userId})
+            const data = await todos.find({userId : userId})
             const todo={
                 userId: userId,
                 title:  req.body.title,
@@ -83,7 +86,7 @@ exports.addNewTodo = async(req, res)=> {
             }
 
             //giving data to mongoDB
-            await collection2.insertMany([todo])
+            await todos.insertMany([todo])
             console.log(todo)
            
             res.redirect(`/add_todo/${userId}`)
@@ -103,7 +106,7 @@ exports.update_Todo = async(req, res) => {
       console.log(todoId)
       const update = { $set: {title:req.body.title, description:req.body.description, completed:req.body.completed} };
 
-      await collection2.updateOne({_id: new ObjectId(todoId)}, update)
+      await todos.updateOne({_id: new ObjectId(todoId)}, update)
        .then(result => {
             console.log('Document updated successfully');
             console.log(result.modifiedCount); // Number of documents modified
@@ -120,7 +123,7 @@ exports.deleteTodo = async(req, res)=> {
       const todoId = req.params.id;
       console.log('Reached the delete route')
 
-       await collection2.deleteOne({_id:new ObjectId(todoId)})
+       await todos.deleteOne({_id:new ObjectId(todoId)})
        .then(result => {
             console.log("Document deleted successfully")
             console.log(result.modifiedCount)

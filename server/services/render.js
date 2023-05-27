@@ -1,5 +1,5 @@
 const session = require('express-session');
-const {collection1,collection2} = require('../model/mongodb');
+const {users,todos} = require('../model/mongodb');
 const { ObjectId } = require('mongodb');
 
 
@@ -22,7 +22,7 @@ exports.registerRoute = (req, res)=> {
 //============================ home page ========================//
 exports.TodoPage = async (req, res) => {
       const userId = req.session.userId
-      const data = await collection2.find({userId : userId})
+      const data = await todos.find({userId : userId})
       console.log(data)
       res.render('index', {data, userId})
 }
@@ -37,7 +37,7 @@ exports.addTodo = (req, res)=> {
 exports.updateTodo  =async(req, res) => {
       const userId = req.session.userId
       const todoId = req.params.id
-      const todo = await collection2.findOne({_id:todoId})
+      const todo = await todos.findOne({_id:todoId})
       res.render('updatetodo', {todo,userId})
 }
 

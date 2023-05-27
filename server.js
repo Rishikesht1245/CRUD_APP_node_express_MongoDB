@@ -1,7 +1,7 @@
 
 const express = require('express');
 const path = require('path');
-// const bcrypt = require('bcrypt');// Hash the passwords plain text to string for security purpose
+const bcrypt = require('bcrypt');// Hash the passwords plain text to string for security purpose
 const app = express();
 const session = require('express-session');
 const nocache = require('nocache');

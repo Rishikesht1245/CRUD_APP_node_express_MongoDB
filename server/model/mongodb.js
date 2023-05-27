@@ -47,7 +47,7 @@ mongoose.connect("mongodb://127.0.0.1:27017/todos")
  })
 
  //creating collection            name of the collection and schema                                         
- const collection1 = new mongoose.model("Users", loginSchema)
- const collection2 = new mongoose.model("Todo", todoSchema)
+ const users = new mongoose.model("Users", loginSchema)
+ const todos = new mongoose.model("Todo", todoSchema)
 
- module.exports = {collection1, collection2};
+ module.exports = {users,todos};
